@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Orvel Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Palette lifted from index.html's dark world so the studio and the
+   product read as one thing. #484DE5 is the logo blue. */
+:root{
+  --navy:#141A2E; --navy-2:#1B2340; --navy-3:#232C4E;
+  --line:rgba(174,178,245,0.16);
+  --text:#E9E8F6; --muted:#9BA1CB;
+  --peri:#AEB2F5; --peri-soft:#C8CAFF; --blue:#484DE5;
+  --teal:#04998A; --gold:#C99B34; --err:#B93A34;
+  --sans:'DM Sans',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r:4px; --r-lg:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--navy);color:var(--text);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+
+/* ── sign in ── */
+#gate{min-height:100vh;display:grid;place-items:center;padding:24px}
+#gate .box{width:100%;max-width:340px}
+.mark{display:flex;align-items:center;gap:10px;margin-bottom:34px}
+.mark svg{width:26px;height:26px}
+.mark span{font-size:12px;letter-spacing:.22em;color:var(--peri)}
+h1{font-size:23px;font-weight:500;letter-spacing:-.01em;margin:0 0 6px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 26px}
+label.f{display:block;font-size:12px;letter-spacing:.08em;color:var(--muted);margin:0 0 6px}
+input[type=email],input[type=password],input[type=url]{width:100%;padding:12px 13px;margin-bottom:15px;
+  background:var(--navy-2);border:1px solid var(--line);border-radius:var(--r);
+  color:var(--text);font-size:16px;font-family:inherit}
+input:focus{outline:none;border-color:var(--peri)}
+.btn{width:100%;padding:13px;border:0;border-radius:var(--r);background:var(--peri);
+  color:var(--navy);font-size:15px;font-weight:700}
+.btn:disabled{background:var(--navy-3);color:var(--muted)}
+.btn.g{background:transparent;border:1px solid var(--line);color:var(--text);
+  width:auto;padding:8px 13px;font-size:13px;font-weight:500}
+.btn.g:hover{border-color:var(--peri)}
+.msg{color:var(--gold);font-size:13px;margin:13px 0 0;min-height:18px}
+
+/* ── console ── */
+#app{display:none}
+#bar{display:flex;align-items:center;gap:14px;padding:12px 20px;
+  border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--navy);z-index:5}
+#bar .mark{margin:0}
+#me{margin-left:auto;color:var(--muted);font-size:13px}
+#cols{display:grid;grid-template-columns:minmax(280px,350px) 1fr;min-height:calc(100vh - 53px)}
+#side{border-right:1px solid var(--line);overflow-y:auto;max-height:calc(100vh - 53px)}
+#main{padding:26px 30px;overflow-y:auto;max-height:calc(100vh - 53px)}
+@media(max-width:840px){#cols{grid-template-columns:1fr}
+  #side{border-right:0;border-bottom:1px solid var(--line);max-height:none}#main{max-height:none;padding:22px 18px}}
+
+.tools{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:7px;flex-wrap:wrap}
+select{padding:8px 10px;background:var(--navy-2);border:1px solid var(--line);
+  border-radius:var(--r);color:var(--text);font-size:13px;font-family:inherit}
+
+.item{display:block;width:100%;text-align:left;padding:13px 16px;background:none;
+  border:0;border-bottom:1px solid var(--line);color:inherit}
+.item:hover{background:var(--navy-2)}
+.item.on{background:var(--navy-2);box-shadow:inset 2px 0 0 var(--peri)}
+.nm{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt{display:flex;gap:7px;align-items:center;margin-top:4px;color:var(--muted);font-size:12px;flex-wrap:wrap}
+.tag{font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;
+  background:var(--navy-3);color:var(--muted)}
+.tag.new{background:rgba(4,153,138,.2);color:var(--teal)}
+.tag.test{background:rgba(201,155,52,.18);color:var(--gold)}
+
+h2{font-size:20px;font-weight:500;letter-spacing:-.01em;margin:0 0 3px}
+.ref{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 22px}
+.card{background:var(--navy-2);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:12px;letter-spacing:.12em;color:var(--peri);margin:0 0 14px;font-weight:500}
+dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:0;font-size:14px}
+dt{color:var(--muted)}
+dd{margin:0}
+.trk{border-top:1px solid var(--line);padding-top:16px;margin-top:16px}
+.trk:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.tname{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tname strong{font-size:15px;font-weight:500}
+.hz{font-family:var(--mono);font-size:11px;color:var(--muted)}
+pre{background:var(--navy);border:1px solid var(--line);border-radius:var(--r);
+  padding:13px;margin:0;font-family:var(--mono);font-size:12px;line-height:1.65;
+  white-space:pre-wrap;word-break:break-word;color:var(--peri-soft);max-height:210px;overflow:auto}
+.cp{margin-top:8px}
+.acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.none{color:var(--muted);padding:70px 20px;text-align:center}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy-3);
+  border:1px solid var(--line);padding:11px 18px;border-radius:var(--r);font-size:13px;z-index:50;display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="gate"><div class="box">
+  <div class="mark">
+    <svg viewBox="0 0 100 100" fill="none" stroke="#AEB2F5" stroke-width="4" stroke-linecap="round">
+      <circle cx="50" cy="50" r="40"/>
+      <path d="M62 30 C48 34 48 46 52 50 C56 54 56 66 40 70"/>
+    </svg>
+    <span>ORVEL</span>
+  </div>
+  <h1>Studio</h1>
+  <p class="sub">Sign in to see incoming briefs.</p>
+  <label class="f" for="em">EMAIL</label>
+  <input id="em" type="email" autocomplete="username">
+  <label class="f" for="pw">PASSWORD</label>
+  <input id="pw" type="password" autocomplete="current-password">
+  <button class="btn" id="in">Sign in</button>
+  <p class="msg" id="gmsg"></p>
+</div></div>
+
+<div id="app">
+  <div id="bar">
+    <div class="mark">
+      <svg viewBox="0 0 100 100" fill="none" stroke="#AEB2F5" stroke-width="4" stroke-linecap="round">
+        <circle cx="50" cy="50" r="40"/>
+        <path d="M62 30 C48 34 48 46 52 50 C56 54 56 66 40 70"/>
+      </svg>
+      <span>ORVEL STUDIO</span>
+    </div>
+    <span id="me"></span>
+    <button class="btn g" id="out">Sign out</button>
+  </div>
+  <div id="cols">
+    <div id="side">
+      <div class="tools">
+        <select id="flt">
+          <option value="all">All briefs</option>
+          <option value="new">New</option>
+          <option value="in_production">In production</option>
+          <option value="delivered">Delivered</option>
+          <option value="revision_requested">Revision requested</option>
+        </select>
+        <select id="pk">
+          <option value="full">Full Day</option>
+          <option value="sleep">Sleep</option>
+          <option value="complete">Complete</option>
+        </select>
+        <button class="btn g" id="seed">Seed test brief</button>
+      </div>
+      <div id="rows"></div>
+    </div>
+    <div id="main"><div class="none">Select a brief.</div></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TABLE='shift_track_submissions';
+
+let sb, briefs=[], sel=null;
+
+try{
+  const cfg=await (await fetch('/api/public-config')).json();
+  sb=createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
+}catch{ $('#gmsg').textContent='Could not load configuration. Check the Vercel env vars.'; }
+
+$('#in').addEventListener('click',signIn);
+$('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')signIn();});
+$('#out').addEventListener('click',async()=>{await sb.auth.signOut();location.reload();});
+$('#flt').addEventListener('change',paint);
+$('#seed').addEventListener('click',seed);
+
+async function signIn(){
+  const b=$('#in'); b.disabled=true; b.textContent='Signing in…'; $('#gmsg').textContent='';
+  const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+  b.disabled=false; b.textContent='Sign in';
+  if(error){ $('#gmsg').textContent='That email and password didn’t work.'; return; }
+  start();
+}
+
+async function start(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session) return;
+
+  /* Membership check, not an empty-result guess. RLS on admins means a
+     non-studio account gets zero rows here even though it signed in. */
+  const {data:me}=await sb.from('admins').select('email').limit(1);
+  if(!me||!me.length){
+    $('#gmsg').textContent='Signed in, but this account has no studio access.';
+    await sb.auth.signOut(); return;
+  }
+
+  const {data,error}=await sb.from(TABLE).select('*').order('submitted_at',{ascending:false});
+  if(error){ $('#gmsg').textContent='Could not load briefs: '+error.message; await sb.auth.signOut(); return; }
+  $('#gate').style.display='none'; $('#app').style.display='block';
+  $('#me').textContent=session.user.email;
+  briefs=data||[]; paint();
+}
+
+function paint(){
+  const f=$('#flt').value;
+  const list=briefs.filter(b=>f==='all'||b.status===f);
+  $('#rows').innerHTML = list.length ? list.map(b=>`
+    <button class="item${b.id===sel?' on':''}" data-id="${b.id}">
+      <div class="nm">${esc(b.full_name||b.email||'—')}</div>
+      <div class="mt">
+        <span class="tag ${b.status==='new'?'new':''}">${esc((b.status||'new').replace(/_/g,' ').toUpperCase())}</span>
+        <span>${esc(b.package_id||'—')}</span>
+        ${b.is_test?'<span class="tag test">TEST</span>':''}
+        <span>${b.submitted_at?new Date(b.submitted_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}</span>
+      </div>
+    </button>`).join('') : '<div class="none">Nothing here yet.</div>';
+  $('#rows').querySelectorAll('.item').forEach(el=>el.addEventListener('click',()=>open(+el.dataset.id)));
+}
+
+function open(id){
+  sel=id; paint();
+  const b=briefs.find(x=>x.id===id); if(!b) return;
+  const pb=b.production_brief||{};
+  const tracks=Array.isArray(pb.tracks)?pb.tracks:[];
+
+  const trackHtml = tracks.length ? tracks.map((t,i)=>{
+    const d=t.dsp||{};
+    const hz=d.binaural?`${d.carrierHz} Hz carrier · ${d.beatHz} Hz beat · ${esc(d.band||'')} · ${d.targetLufs} LUFS`
+                       :'binaural dropped — speaker playback';
+    const stack=JSON.stringify({track:t.track,...d},null,2);
+    return `<div class="trk">
+      <div class="tname"><strong>${esc(t.name||t.track)}</strong><span class="hz">${hz}</span></div>
+      <pre id="fp${i}">${esc(t.flowPrompt||'—')}</pre>
+      <div class="acts">
+        <button class="btn g" data-copy="fp${i}">Copy Flow prompt</button>
+        <button class="btn g" data-copy="ds${i}">Copy DSP config</button>
+      </div>
+      <pre id="ds${i}" hidden>${esc(stack)}</pre>
+    </div>`;
+  }).join('') : '<p style="color:var(--muted);margin:0">No production brief on this row.</p>';
+
+  $('#main').innerHTML=`
+    <h2>${esc(b.full_name||b.email||'—')}${b.is_test?' <span class="tag test">TEST</span>':''}</h2>
+    <p class="ref">${esc(b.payment_ref||'no payment ref')} · id ${b.id}</p>
+
+    <div class="card"><h3>CUSTOMER</h3>
+      <dl>
+        <dt>Email</dt><dd>${esc(b.email||'—')}</dd>
+        <dt>Phone</dt><dd>${esc(b.phone_number||'—')}</dd>
+        <dt>Country</dt><dd>${esc(b.country||'—')}</dd>
+        <dt>Package</dt><dd>${esc(b.package_id||'—')}${b.subscribed_refresh?' + Refresh':''}</dd>
+        <dt>Submitted</dt><dd>${b.submitted_at?new Date(b.submitted_at).toLocaleString('en-GB'):'—'}</dd>
+      </dl>
+    </div>
+
+    <div class="card"><h3>SYSTEM</h3>
+      <dl>
+        <dt>Name</dt><dd>${esc(b.system_name||pb.systemName||'—')}</dd>
+        <dt>Schedule</dt><dd>${esc(b.shift_pattern||'—')}</dd>
+        <dt>Playback</dt><dd>${esc(b.playback||'—')}</dd>
+        <dt>Masking</dt><dd>${esc((b.masking_targets||[]).join(', ')||'—')} <span class="hz">(${esc(pb.maskingLevel||'—')})</span></dd>
+        <dt>Families</dt><dd>${esc((b.sound_families||[]).join(', ')||'—')}</dd>
+        <dt>Avoids</dt><dd>${esc((b.aversions||[]).join(', ')||'none')}</dd>
+        <dt>Calm place</dt><dd>${esc(b.calm_place||'—')}</dd>
+      </dl>
+    </div>
+
+    <div class="card"><h3>TRACKS TO BUILD</h3>${trackHtml}</div>
+
+    <div class="card"><h3>FULFILMENT</h3>
+      <label class="f" for="du">DELIVERY URL</label>
+      <input id="du" type="url" value="${esc(b.delivery_url||'')}" placeholder="https://…">
+      <div class="acts">
+        <button class="btn g" data-save="url">Save link</button>
+        ${['in_production','delivered','revision_requested','revision_delivered']
+          .map(s=>`<button class="btn g" data-st="${s}">Mark ${s.replace(/_/g,' ')}</button>`).join('')}
+      </div>
+    </div>`;
+
+  $('#main').querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',()=>{
+    const el=document.getElementById(btn.dataset.copy);
+    navigator.clipboard.writeText(el.textContent).then(()=>toast('Copied.'),()=>toast('Copy blocked by the browser.'));
+  }));
+  $('#main').querySelectorAll('[data-st]').forEach(btn=>btn.addEventListener('click',()=>setStatus(id,btn.dataset.st)));
+  $('#main').querySelector('[data-save]').addEventListener('click',()=>saveUrl(id,$('#du').value.trim()));
+}
+
+async function setStatus(id,status){
+  const patch={status};
+  if(status==='delivered') patch.delivered_at=new Date().toISOString();
+  const {error}=await sb.from(TABLE).update(patch).eq('id',id);
+  if(error) return toast('Could not update: '+error.message);
+  Object.assign(briefs.find(b=>b.id===id),patch);
+  paint(); open(id); toast('Updated.');
+}
+
+async function saveUrl(id,url){
+  const {error}=await sb.from(TABLE).update({delivery_url:url||null}).eq('id',id);
+  if(error) return toast('Could not save: '+error.message);
+  briefs.find(b=>b.id===id).delivery_url=url;
+  toast('Link saved.');
+}
+
+async function seed(){
+  const b=$('#seed'); b.disabled=true; b.textContent='Seeding…';
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    const r=await fetch('/api/admin-seed-brief',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},
+      body:JSON.stringify({packageId:$('#pk').value})
+    });
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||d.error||'failed');
+    const {data}=await sb.from(TABLE).select('*').order('submitted_at',{ascending:false});
+    briefs=data||[]; paint(); if(d.id) open(d.id);
+    toast('Test brief created.');
+  }catch(e){ toast(String(e.message)); }
+  b.disabled=false; b.textContent='Seed test brief';
+}
+
+let tt;
+function toast(m){
+  const t=$('#toast'); t.textContent=m; t.style.display='block';
+  clearTimeout(tt); tt=setTimeout(()=>t.style.display='none',3600);
+}
+
+start();
+</script>
+</body>
+</html>

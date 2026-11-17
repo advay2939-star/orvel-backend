@@ -1,0 +1,6 @@
+*.wav
+orvel_test_key.csv
+.fuse_hidden*
+_backups
+
+_capi_test.mjs

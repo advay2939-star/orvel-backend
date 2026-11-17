@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Orvel for Developers — custom focus and sleep audio for deep work</title>
+<meta name="description" content="Custom focus and sleep audio for software developers. Built around how you work, what breaks your focus and how you switch off after a late push. MP3 + WAV in 24–48 hours. One-time payment.">
+<meta name="theme-color" content="#F5F0E4">
+<link rel="canonical" href="https://www.orvelsound.com/developers">
+<meta property="og:title" content="Focus audio built for how you code, not a lo-fi playlist.">
+<meta property="og:description" content="Custom focus and sleep audio for software developers. Built around how you work, what breaks your focus and how you switch off after a late push. MP3 + WAV in 24–48 hours. One-time payment.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.orvelsound.com/developers">
+<meta property="og:image" content="https://images.unsplash.com/photo-1604145559206-e3bce0040e2d?auto=format&amp;fit=crop&amp;w=1200&amp;h=630&amp;q=75">
+<link rel="icon" href="data:image/svg%2Bxml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='50' fill='%23141A2E'/%3E%3Ccircle cx='50' cy='50' r='37' fill='none' stroke='%23AEB2F5' stroke-width='3.2'/%3E%3Cpath d='M62 31.5C46 32.6 40 43 49.5 50.5C59 58 53 68.4 37 69.5' fill='none' stroke='%23C8CAFF' stroke-width='5.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://images.unsplash.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ TOKENS — identical to orvelsound.com ═══ */
+:root{
+  --paper:#F5F0E4;--paper-2:#EFE8D8;--sand:#E4DAC3;
+  --ink:#1B1913;--muted:#6E6555;--muted-2:#514939;
+  --line:rgba(27,25,19,0.10);--line-2:rgba(27,25,19,0.18);
+  --navy:#141A2E;--navy-2:#1B2340;--navy-3:#232C4E;
+  --navy-line:rgba(174,178,245,0.16);--navy-text:#E9E8F6;--navy-muted:#9BA1CB;
+  --teal:#04998A;--teal-dim:rgba(4,153,138,0.10);--teal-glow:rgba(4,153,138,0.26);
+  --peri:#AEB2F5;--peri-soft:#C8CAFF;--gold:#C99B34;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --nav-h:62px;--r:4px;--r-lg:10px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --pad:clamp(1.15rem,5vw,4.5rem);--maxw:1180px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;font-weight:500;
+  line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img,svg,canvas{display:block;max-width:100%}
+button{font-family:inherit;font-weight:inherit;color:inherit;cursor:pointer;background:none;border:none}
+a{color:inherit}
+ul{list-style:none}
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:2px}
+.dark :focus-visible{outline-color:var(--peri)}
+.skip{position:absolute;left:-9999px;top:0;z-index:9999;background:var(--ink);color:var(--paper);padding:.75rem 1.25rem}
+.skip:focus{left:8px;top:8px}
+
+.band{position:relative;padding:clamp(4.25rem,10vw,8rem) var(--pad)}
+.dark{background:var(--navy);color:var(--navy-text)}
+.paper2{background:var(--paper-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;width:100%}
+
+.eyebrow{font-family:var(--mono);font-size:.62rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:.6rem}
+.eyebrow::before{content:'';width:18px;height:1px;background:currentColor;opacity:.5;flex:none}
+.dark .eyebrow{color:var(--peri)}
+.eb-gold{color:var(--gold)}.eb-teal{color:var(--teal)}
+h1,h2,h3{font-family:var(--serif);font-weight:300;letter-spacing:-.012em;line-height:1.08}
+h2{font-size:clamp(2.05rem,4.6vw,3.4rem);margin-top:1rem;max-width:20ch}
+h3{font-size:clamp(1.35rem,2.2vw,1.7rem);line-height:1.2}
+em.hl{font-style:italic;color:var(--teal)}
+.dark em.hl{color:var(--peri)}
+.lede{font-size:clamp(1rem,1.5vw,1.1rem);color:var(--muted-2);line-height:1.75;max-width:58ch;margin-top:1.2rem}
+.dark .lede,.dark p{color:var(--navy-muted)}
+.mono{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.dark .mono{color:var(--navy-muted)}
+.src{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;color:var(--muted);line-height:1.6}
+.dark .src{color:var(--navy-muted)}
+.src a{color:inherit;text-underline-offset:2px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;padding:.95rem 1.6rem;
+  border-radius:var(--r);font-size:.86rem;font-weight:600;letter-spacing:.01em;min-height:50px;
+  text-decoration:none;white-space:nowrap;
+  transition:transform .16s var(--ease),box-shadow .25s,background .2s,border-color .2s}
+.btn:active{transform:translateY(1px) scale(.995)}
+.btn-primary{background:var(--teal);color:#06110F;box-shadow:0 1px 0 rgba(255,255,255,.25) inset}
+.btn-primary:hover{box-shadow:0 6px 26px var(--teal-glow);transform:translateY(-1px)}
+.btn-ghost{border:1px solid var(--line-2);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink);background:rgba(27,25,19,.04)}
+.dark .btn-ghost{border-color:var(--navy-line);color:var(--navy-text)}
+.dark .btn-ghost:hover{border-color:var(--peri);background:rgba(174,178,245,.08)}
+.btn-peri{background:var(--peri);color:#101528}
+.btn-peri:hover{box-shadow:0 6px 26px rgba(174,178,245,.28);transform:translateY(-1px)}
+.btn-lg{padding:1.05rem 1.9rem;font-size:.9rem}
+.btn .price{opacity:.62;font-weight:500}
+
+/* photos */
+.ph{position:relative;overflow:hidden;border-radius:var(--r-lg);background:var(--sand)}
+.dark .ph{background:var(--navy-2)}
+.ph img{width:100%;height:100%;object-fit:cover}
+.ph figcaption{position:absolute;left:.8rem;bottom:.8rem;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;
+  text-transform:uppercase;color:#fff;background:rgba(20,26,46,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  padding:.35rem .55rem;border-radius:3px}
+.ph.broken img{display:none}
+
+/* reveal — only when JS is running, so the page never ships blank */
+.js .rv{opacity:0;transform:translateY(18px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.js .rv.in{opacity:1;transform:none}
+.rv-d1{transition-delay:.08s!important}.rv-d2{transition-delay:.16s!important}.rv-d3{transition-delay:.24s!important}
+
+/* ═══ NAV ═══ */
+#nav{position:fixed;top:0;left:0;right:0;z-index:900;height:var(--nav-h);display:flex;align-items:center;
+  justify-content:space-between;padding:0 var(--pad);border-bottom:1px solid transparent;
+  transition:background .35s,border-color .35s}
+#nav.solid{background:rgba(245,240,228,.88);backdrop-filter:blur(18px) saturate(1.3);
+  -webkit-backdrop-filter:blur(18px) saturate(1.3);border-bottom-color:var(--line)}
+.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.mark{width:26px;height:26px;flex:none}
+.brand-word{font-family:var(--serif);font-size:1.28rem;letter-spacing:.24em;text-transform:uppercase;line-height:1}
+.brand-tag{font-family:var(--mono);font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;opacity:.62;
+  border-left:1px solid currentColor;padding-left:.7rem;margin-left:.1rem}
+.nav-cta{padding:.6rem 1.15rem;font-size:.78rem;font-weight:600;border-radius:var(--r);background:var(--teal);
+  color:#06110F;min-height:40px;display:inline-flex;align-items:center;text-decoration:none;
+  transition:box-shadow .25s,transform .15s}
+.nav-cta:hover{box-shadow:0 4px 20px var(--teal-glow);transform:translateY(-1px)}
+
+/* ═══ HERO ═══ */
+#hero{padding:calc(var(--nav-h) + clamp(2.2rem,5vw,4.5rem)) var(--pad) clamp(3.5rem,8vw,6rem)}
+.hero-grid{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(2.5rem,5vw,5rem);align-items:center}
+.hero-h1{font-size:clamp(2.6rem,6vw,4.6rem);margin-top:1.2rem;max-width:14ch}
+.hero-sub{font-size:clamp(1rem,1.45vw,1.1rem);color:var(--muted-2);max-width:52ch;margin-top:1.4rem;line-height:1.75}
+.hero-btns{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2rem}
+.assure{display:flex;gap:.6rem;align-items:flex-start;margin-top:1.4rem;font-size:.84rem;color:var(--muted-2);max-width:50ch;line-height:1.6}
+.assure svg{flex:none;margin-top:.2rem;color:var(--teal)}
+.assure b{color:var(--ink);font-weight:600}
+.trust{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:1.3rem;line-height:2}
+.trust i{font-style:normal;opacity:.45;margin:0 .55rem}
+.hero-visual{position:relative;padding-bottom:4.5rem}
+.hero-visual .ph{aspect-ratio:4/5}
+.hero-visual .ph img{object-position:72% 60%}
+.hero-visual .ph figcaption{left:auto;right:.8rem;top:.8rem;bottom:auto}
+.hero-visual .spec{position:absolute;left:-2.2rem;right:2.2rem;bottom:0}
+
+/* spec card */
+.spec{background:var(--navy);color:var(--navy-text);border-radius:var(--r-lg);padding:1.3rem 1.4rem 1.1rem;
+  box-shadow:0 30px 70px -26px rgba(20,26,46,.6),0 0 0 1px rgba(174,178,245,.08) inset;position:relative;overflow:hidden}
+.spec-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-bottom:.85rem;border-bottom:1px solid var(--navy-line)}
+.spec-title{display:flex;align-items:center;gap:.6rem;font-size:.88rem}
+.spec-title b{font-weight:600}
+.spec-tag{font-family:var(--mono);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  border:1px solid rgba(201,155,52,.35);padding:.25rem .5rem;border-radius:3px;white-space:nowrap}
+.spec-row{display:flex;justify-content:space-between;gap:1.2rem;padding:.6rem 0;border-bottom:1px dashed var(--navy-line);font-size:.84rem}
+.spec-row:last-child{border-bottom:0}
+.spec-k{color:var(--navy-muted);font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding-top:.2rem;flex:none}
+.spec-v{text-align:right;font-weight:500}
+.spec-v.accent{color:var(--peri-soft)}
+
+/* ═══ PROBLEM ═══ */
+.prob-top{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(2rem,5vw,4rem);align-items:end}
+.stat{border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:1.5rem 1.5rem 1.3rem}
+.stat-row{display:flex;align-items:flex-end;gap:1.4rem}
+.stat-n{font-family:var(--serif);font-weight:300;font-size:clamp(3.2rem,6vw,4.4rem);line-height:.9;color:var(--peri-soft)}
+.stat-n small{font-size:.45em;margin-left:.15rem}
+.stat-n.off{color:var(--navy-muted);font-size:clamp(2rem,3.6vw,2.6rem)}
+.stat-l{font-size:.82rem;margin-top:.5rem;line-height:1.5}
+.stat .src{margin-top:1rem;display:block}
+.prob-photos{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:3rem}
+.prob-photos .ph{aspect-ratio:4/3}
+.prob-photos .ph:nth-child(2) img{object-position:50% 32%}
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--navy-line);margin-top:1rem;
+  border:1px solid var(--navy-line);border-radius:var(--r-lg);overflow:hidden}
+.prob{background:var(--navy);padding:1.8rem 1.6rem 2rem}
+.prob .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;color:var(--gold)}
+.prob h3{margin-top:.9rem;color:var(--navy-text)}
+.prob p{margin-top:.7rem;font-size:.92rem;line-height:1.7}
+
+/* ═══ COMPARE ═══ */
+.cmp{margin-top:2.8rem;border:1px solid var(--line-2);border-radius:var(--r-lg);overflow:hidden;background:rgba(255,255,255,.35)}
+.cmp-row{display:grid;grid-template-columns:1.1fr 1fr 1.2fr;border-top:1px solid var(--line)}
+.cmp-row:first-child{border-top:0}
+.cmp-row>div{padding:1rem 1.2rem;font-size:.9rem}
+.cmp-head>div{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding-top:1.1rem;padding-bottom:1.1rem}
+.cmp-head .o{color:var(--teal)}
+.cmp-row .q{font-weight:600}
+.cmp-row .g{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(27,25,19,.25)}
+.cmp-row .o{background:var(--teal-dim);color:var(--ink)}
+.cmp-row .gl,.cmp-row .ol{display:none}
+
+/* ═══ RESEARCH ═══ */
+.res-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:1rem;margin-top:3rem}
+.res{border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:1.7rem 1.6rem}
+.res .mono{color:var(--peri)}
+.res h3{margin-top:.8rem;color:var(--navy-text)}
+.res p{margin-top:.8rem;font-size:.93rem;line-height:1.75}
+.res .src{margin-top:1.2rem;display:block}
+.bars{margin-top:1.5rem;display:grid;gap:.75rem}
+.bar{display:grid;grid-template-columns:9.5rem 1fr 3rem;align-items:center;gap:.8rem;font-size:.8rem}
+.bar span:first-child{color:var(--navy-muted)}
+.bar .track{display:block;height:12px;background:rgba(174,178,245,.08);border-radius:2px;overflow:hidden}
+.bar .fill{display:block;height:100%;background:var(--navy-muted);border-radius:2px;width:0;transition:width 1.2s var(--ease)}
+.bar.hot .fill{background:#E26D5C}
+.bar.good .fill{background:var(--peri)}
+.bar b{font-family:var(--mono);font-weight:500;font-size:.8rem;text-align:right;color:var(--navy-text)}
+.bars-k{font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--navy-muted);margin-top:.2rem}
+.honest{margin-top:1rem;display:flex;gap:.8rem;align-items:flex-start;border:1px dashed var(--navy-line);border-radius:var(--r-lg);padding:1.1rem 1.3rem;font-size:.86rem;line-height:1.65}
+.honest svg{flex:none;color:var(--gold);margin-top:.2rem}
+
+/* ═══ TIMELINE ═══ */
+.tl-head{display:grid;grid-template-columns:1fr .9fr;gap:clamp(2rem,5vw,4rem);align-items:end}
+.tl-head .ph{aspect-ratio:16/10}
+.tl-head .ph img{object-position:50% 40%}
+.tl{margin-top:3rem;display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;position:relative}
+.tl::before{content:'';position:absolute;left:0;right:0;top:15px;height:1px;background:var(--line-2)}
+.tl-item{position:relative;padding-top:2.6rem}
+.tl-dot{position:absolute;top:8px;left:0;width:15px;height:15px;border-radius:50%;background:var(--paper-2);border:1.5px solid var(--teal)}
+.tl-item.c .tl-dot{border-color:var(--gold)}
+.tl-time{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--teal);font-weight:500}
+.tl-item.c .tl-time{color:var(--gold)}
+.tl-item h3{margin-top:.35rem;font-size:1.45rem}
+.tl-item p{font-size:.88rem;color:var(--muted-2);margin-top:.5rem;line-height:1.65}
+.tl-plan{display:inline-block;margin-top:.8rem;font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line-2);padding:.22rem .45rem;border-radius:3px}
+.tl-note{margin-top:2.4rem;font-size:.84rem;color:var(--muted-2);display:flex;gap:.6rem;align-items:flex-start;max-width:70ch}
+.tl-note svg{flex:none;margin-top:.25rem;color:var(--gold)}
+
+/* ═══ PLAYER ═══ */
+.audio-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(2rem,6vw,5rem);align-items:center}
+.player{background:var(--navy);color:var(--navy-text);border-radius:var(--r-lg);padding:1.4rem;box-shadow:0 30px 70px -34px rgba(20,26,46,.6)}
+.pl-tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+.pl-tab{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;padding:.55rem .8rem;
+  border-radius:3px;border:1px solid var(--navy-line);color:var(--navy-muted);transition:.2s}
+.pl-tab[aria-selected="true"]{background:rgba(174,178,245,.12);border-color:var(--peri);color:var(--navy-text)}
+.pl-body{display:flex;align-items:center;gap:1rem;margin-top:1.3rem}
+.pl-play{width:58px;height:58px;border-radius:50%;background:var(--peri);color:#101528;display:grid;place-items:center;flex:none;
+  transition:transform .2s var(--ease),box-shadow .25s}
+.pl-play:hover{transform:scale(1.04);box-shadow:0 0 0 8px rgba(174,178,245,.12)}
+.pl-meta{flex:1;min-width:0}
+.pl-name{font-family:var(--serif);font-size:1.6rem;line-height:1.1}
+.pl-sub{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--navy-muted);margin-top:.3rem}
+.pl-wave{display:flex;align-items:center;gap:2px;height:64px;margin-top:1.3rem;cursor:pointer;position:relative;touch-action:none}
+.pl-wave i{flex:1;background:rgba(174,178,245,.26);border-radius:2px;min-height:2px;transition:background .15s}
+.pl-wave i.on{background:var(--peri)}
+.pl-time{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.62rem;color:var(--navy-muted);margin-top:.6rem}
+.pl-err{display:none;margin-top:.8rem;font-size:.8rem;color:#E9A9A5}
+
+/* ═══ WHAT ARRIVES ═══ */
+.arr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:3rem;align-items:start}
+.mail{background:#fff;border:1px solid var(--line-2);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 24px 50px -30px rgba(27,25,19,.35)}
+.mail-bar{display:flex;gap:.4rem;padding:.7rem .9rem;border-bottom:1px solid var(--line);background:var(--paper)}
+.mail-bar i{width:9px;height:9px;border-radius:50%;background:var(--sand)}
+.mail-h{padding:1.1rem 1.2rem .9rem;border-bottom:1px solid var(--line)}
+.mail-from{display:flex;align-items:center;gap:.6rem;font-size:.84rem}
+.mail-from b{font-weight:600}
+.mail-from span{color:var(--muted);font-size:.78rem}
+.mail-subj{font-family:var(--serif);font-size:1.45rem;line-height:1.2;margin-top:.7rem}
+.mail-body{padding:1rem 1.2rem 1.2rem;font-size:.88rem;color:var(--muted-2);line-height:1.65}
+.files{margin-top:1rem;display:grid;gap:.45rem}
+.file{display:flex;align-items:center;gap:.7rem;border:1px solid var(--line);border-radius:6px;padding:.55rem .7rem;font-size:.82rem;color:var(--ink)}
+.file .ic{width:30px;height:30px;border-radius:5px;background:var(--navy);color:var(--peri);display:grid;place-items:center;font-family:var(--mono);font-size:.5rem;letter-spacing:.06em;flex:none}
+.file .ic.pdf{background:var(--gold);color:#fff}
+.file span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file em{font-style:normal;font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;color:var(--muted)}
+.notes{background:var(--navy);color:var(--navy-text);border-radius:var(--r-lg);padding:1.4rem 1.4rem 1.2rem}
+.notes h3{color:var(--navy-text);font-size:1.5rem;margin-top:.7rem}
+.notes .spec-row{font-size:.82rem}
+.notes .spec-v{max-width:62%}
+
+/* ═══ STEPS ═══ */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:3rem}
+.step{border:1px solid var(--line-2);border-radius:var(--r-lg);padding:1.6rem 1.5rem 1.7rem;background:rgba(255,255,255,.3)}
+.step .n{font-family:var(--serif);font-size:2.6rem;line-height:1;color:var(--teal);font-style:italic}
+.step h3{margin-top:.8rem;font-size:1.4rem}
+.step p{margin-top:.5rem;font-size:.9rem;color:var(--muted-2);line-height:1.7}
+.step .t{display:block;margin-top:1rem}
+
+/* ═══ PRICING ═══ */
+.pricing-head{text-align:center}
+.pricing-head .eyebrow{justify-content:center}
+.pricing-head h2{margin-left:auto;margin-right:auto;max-width:none}
+.pricing-head .lede{margin-left:auto;margin-right:auto}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:3.2rem;align-items:stretch}
+.plan{border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:1.9rem 1.6rem;display:flex;flex-direction:column;
+  background:rgba(255,255,255,.015);position:relative}
+.plan.feat{background:var(--navy-2);border-color:rgba(174,178,245,.45);box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+.plan-flag{position:absolute;top:-.7rem;left:1.6rem;font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;
+  background:var(--peri);color:#101528;padding:.3rem .6rem;border-radius:3px;font-weight:500}
+.plan-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--navy-muted)}
+.plan h3{margin-top:.6rem;font-size:2rem;color:var(--navy-text)}
+.plan-tracks{font-size:.82rem;color:var(--navy-muted)}
+.plan-price{font-family:var(--serif);font-size:3.4rem;line-height:1;margin-top:1.2rem;color:var(--navy-text);font-weight:300}
+.plan-price sup{font-size:1.3rem;vertical-align:top;position:relative;top:.5rem;margin-right:.1rem}
+.plan-once{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--navy-muted);margin-top:.4rem}
+.plan-for{font-family:var(--serif);font-style:italic;font-size:1.15rem;color:var(--peri-soft)!important;margin-top:1.2rem;line-height:1.35}
+.plan ul{margin:1.3rem 0 1.6rem;display:grid;gap:.55rem;flex:1}
+.plan li{display:flex;gap:.6rem;font-size:.86rem;color:var(--navy-text);line-height:1.5}
+.plan li svg{flex:none;margin-top:.3rem;color:var(--peri)}
+.plan .btn{width:100%}
+.pricing-foot{text-align:center;margin-top:1.8rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--navy-muted)}
+.pricing-foot i{font-style:normal;opacity:.4;margin:0 .6rem}
+.guarantee{display:flex;gap:1.1rem;margin:2.6rem auto 0;max-width:760px;border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:1.5rem 1.6rem}
+.guarantee svg{flex:none;color:var(--peri);margin-top:.15rem}
+.guarantee b{color:var(--navy-text);font-weight:600}
+.guarantee p{margin-top:.4rem;font-size:.9rem;line-height:1.7}
+
+/* ═══ REVIEWS (renders only when real reviews are supplied) ═══ */
+#reviews[hidden]{display:none}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:2.6rem}
+.rev{border:1px solid var(--line-2);border-radius:var(--r-lg);padding:1.5rem;background:rgba(255,255,255,.35)}
+.rev .stars{color:var(--gold);letter-spacing:.15em;font-size:.85rem}
+.rev blockquote{font-family:var(--serif);font-size:1.3rem;line-height:1.35;margin-top:.7rem}
+.rev .by{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:1rem}
+
+/* ═══ FAQ ═══ */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(2rem,6vw,5rem)}
+.faq-item{border-top:1px solid var(--line-2)}
+.faq-item:last-child{border-bottom:1px solid var(--line-2)}
+.faq-q{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1.15rem 0;
+  font-size:1rem;font-weight:600;line-height:1.45}
+.faq-ico{font-family:var(--mono);font-size:1.1rem;color:var(--teal);transition:transform .3s var(--ease);flex:none}
+.faq-item.open .faq-ico{transform:rotate(45deg)}
+.faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease)}
+.faq-item.open .faq-a{grid-template-rows:1fr}
+.faq-a>div{overflow:hidden}
+.faq-a p{padding-bottom:1.25rem;font-size:.93rem;color:var(--muted-2);line-height:1.75;max-width:62ch}
+.faq-a a{color:var(--teal)}
+
+/* ═══ FINAL ═══ */
+#final{text-align:center}
+#final h2{margin:1rem auto 0;max-width:16ch;font-size:clamp(2.3rem,5.6vw,4rem)}
+#final .eyebrow{justify-content:center}
+#final .lede{margin:1.4rem auto 2rem}
+#final .assure{justify-content:center;margin:0 auto 1.6rem;text-align:left}
+#final .trust a{color:var(--teal);text-decoration:none}
+
+/* ═══ FOOTER ═══ */
+footer{background:var(--navy);color:var(--navy-muted);padding:3.5rem var(--pad) 6.5rem}
+.f-top{display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.f-brand{display:flex;align-items:center;gap:.6rem;color:var(--navy-text)}
+.f-brand b{font-family:var(--serif);font-weight:400;font-size:1.3rem;letter-spacing:.24em;text-transform:uppercase}
+.f-tag{font-size:.86rem;max-width:40ch;margin-top:.9rem}
+.f-links{display:flex;flex-wrap:wrap;gap:.6rem 1.6rem;font-size:.84rem;align-content:flex-start}
+.f-links a{text-decoration:none;color:var(--navy-text);opacity:.8}
+.f-links a:hover{opacity:1}
+.f-bot{border-top:1px solid var(--navy-line);margin-top:2.4rem;padding-top:1.4rem;display:grid;gap:.8rem;font-size:.74rem;line-height:1.6}
+.f-bot p{max-width:90ch}
+.f-bot a{color:inherit}
+
+/* ═══ STICKY MOBILE BAR ═══ */
+#sticky{position:fixed;left:0;right:0;bottom:0;z-index:800;display:none;align-items:center;gap:.8rem;
+  padding:.7rem var(--pad) calc(.7rem + env(safe-area-inset-bottom));background:rgba(20,26,46,.94);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--navy-line);
+  transform:translateY(110%);transition:transform .45s var(--ease)}
+#sticky.up{transform:none}
+#sticky .s-txt{flex:1;min-width:0;color:var(--navy-text);font-size:.82rem;line-height:1.3}
+#sticky .s-txt span{display:block;font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--navy-muted);margin-top:.15rem}
+#sticky .btn{min-height:44px;padding:.7rem 1.15rem;font-size:.82rem}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width:960px){
+  .hero-grid,.audio-grid,.faq-grid,.prob-top,.tl-head,.res-grid,.arr-grid{grid-template-columns:1fr}
+  .hero-visual{max-width:520px}
+  .hero-visual .spec{left:1rem;right:1rem}
+  .prob-grid{grid-template-columns:1fr}
+  .plans{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
+  .plan.feat{order:-1}
+  .steps{grid-template-columns:1fr}
+  .tl{grid-template-columns:1fr;gap:0}
+  .tl::before{left:7px;right:auto;top:8px;bottom:8px;width:1px;height:auto}
+  .tl-item{padding:0 0 1.8rem 2.2rem}
+  .tl-dot{top:4px}
+}
+@media (max-width:720px){
+  .brand-tag{display:none}
+  #sticky{display:flex}
+  #hero{padding-top:calc(var(--nav-h) + 1.4rem)}
+  .hero-h1{font-size:clamp(2.2rem,10.4vw,2.6rem);margin-top:.9rem}
+  .hero-sub{font-size:.97rem;margin-top:1rem;line-height:1.65}
+  .hero-btns{margin-top:1.4rem}
+  .hero-btns .btn{flex:1 1 100%}
+  .hero-visual .ph{aspect-ratio:4/4.4}
+  .prob-photos{grid-template-columns:1fr 1fr;gap:.6rem}
+  .prob-photos .ph{aspect-ratio:3/4}
+  .cmp-head{display:none!important}
+  .cmp-row{grid-template-columns:1fr;padding:1rem 1.1rem;gap:.35rem}
+  .cmp-row>div{padding:0}
+  .cmp-row .q{font-size:.95rem;margin-bottom:.2rem}
+  .cmp-row .g,.cmp-row .o{font-size:.86rem;display:flex;gap:.6rem;background:none}
+  .cmp-row .gl,.cmp-row .ol{display:inline-block;font-family:var(--mono);font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;
+    flex:none;width:64px;padding-top:.25rem;text-decoration:none}
+  .cmp-row .gl{color:var(--muted)}
+  .cmp-row .ol{color:var(--teal)}
+  .cmp-row .o{color:var(--ink);font-weight:600}
+  .cmp-row .g{text-decoration:none}
+  .guarantee{flex-direction:column;gap:.7rem}
+  .bar{grid-template-columns:7.2rem 1fr 2.6rem;font-size:.74rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv{opacity:1;transform:none}
+}
+.prob-top.nostat{grid-template-columns:1fr}
+.tl-note.warn{border:1px solid rgba(201,155,52,.45);border-radius:var(--r-lg);padding:1rem 1.2rem;background:rgba(201,155,52,.07);color:var(--ink)}
+</style>
+
+<!-- Meta Pixel — set META_PIXEL_ID below; nothing loads while it's empty -->
+<script>
+window.ORVEL_LP = {
+  NICHE: 'developers',
+  META_PIXEL_ID: '4421864751398564', // Orvel Pixel — same ID as index.html
+  CHECKOUT_URL: '/',          // main site; ?buy=<plan>&ref=<niche> opens checkout pre-selected
+  REVIEWS: [
+    /* Only real reviews from real customers, with their permission. Leave empty and the section stays hidden.
+       { quote:'…', by:'Backend engineer · remote · Full Day' } */
+  ],
+};
+(function(){
+  var id = window.ORVEL_LP.META_PIXEL_ID; if (!id) return;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
+  s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq.disablePushState = true; fbq('init', id); fbq('track', 'PageView');
+  fbq('track', 'ViewContent', { content_name: 'lp_' + window.ORVEL_LP.NICHE, content_category: window.ORVEL_LP.NICHE, content_type: 'product_group', content_ids: ['sleep','full','complete'] });
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="orvel-mark" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#141A2E"/>
+      <circle cx="50" cy="50" r="37" fill="none" stroke="#AEB2F5" stroke-width="3.2"/>
+      <path d="M62 31.5C46 32.6 40 43 49.5 50.5C59 58 53 68.4 37 69.5" fill="none" stroke="#C8CAFF" stroke-width="5.4" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ico-check" viewBox="0 0 14 14"><path d="M2 7.5l3.4 3.4L12 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ico-shield" viewBox="0 0 16 16"><path d="M8 1.4l5.4 2v4.2c0 3.2-2.2 5.9-5.4 7-3.2-1.1-5.4-3.8-5.4-7V3.4l5.4-2Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.6 8.1l1.7 1.7 3.3-3.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ico-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 7.2v4M8 4.9v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<header id="nav">
+  <a class="brand" href="/" aria-label="Orvel home">
+    <svg class="mark" aria-hidden="true"><use href="#orvel-mark"/></svg>
+    <span class="brand-word">Orvel</span>
+    <span class="brand-tag">For developers</span>
+  </a>
+  <a class="nav-cta" data-buy="full" href="/?buy=full&amp;ref=developers">Build mine</a>
+</header>
+
+<main id="main">
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-grid">
+    <div>
+      <p class="eyebrow eb-gold">Custom focus &amp; sleep audio for developers</p>
+      <h1 class="hero-h1">Focus audio built for <em class="hl">how you code</em>, not a lo-fi playlist.</h1>
+      <p class="hero-sub">Orvel builds audio for one person at a time. You tell us how you work, what breaks your focus and how you switch off after a late push. We build a Focus track for deep work, plus tracks for the wind-down and the sleep after. Files in your inbox within 48 hours.</p>
+      <div class="hero-btns">
+        <a class="btn btn-primary btn-lg" data-buy="full" href="/?buy=full&amp;ref=developers">Build my deep-work system <span class="price">$99</span></a>
+        <a class="btn btn-ghost btn-lg" href="#listen">
+          <svg width="11" height="12" viewBox="0 0 11 12" aria-hidden="true"><path d="M1 1L10 6L1 11V1Z" fill="currentColor"/></svg>
+          Hear a sample
+        </a>
+      </div>
+      <p class="assure">
+        <svg width="15" height="15" aria-hidden="true"><use href="#ico-shield"/></svg>
+        <span><b>One free rebuild if it misses.</b> Still not right after that and we refund you in full. You keep the files either way.</span>
+      </p>
+      <p class="trust">One-time payment<i>·</i>MP3 + WAV<i>·</i>24–48 hr delivery<i>·</i>No app</p>
+    </div>
+
+    <div class="hero-visual">
+      <figure class="ph">
+        <img src="https://images.unsplash.com/photo-1604145559206-e3bce0040e2d?auto=format&amp;fit=crop&amp;w=900&amp;q=72"
+             srcset="https://images.unsplash.com/photo-1604145559206-e3bce0040e2d?auto=format&amp;fit=crop&amp;w=600&amp;q=72 600w,
+                     https://images.unsplash.com/photo-1604145559206-e3bce0040e2d?auto=format&amp;fit=crop&amp;w=900&amp;q=72 900w,
+                     https://images.unsplash.com/photo-1604145559206-e3bce0040e2d?auto=format&amp;fit=crop&amp;w=1300&amp;q=72 1300w"
+             sizes="(max-width:960px) 92vw, 520px" width="900" height="1125" fetchpriority="high" style="object-position:50% 40%"
+             alt="A developer wearing headphones, working at a screen full of code">
+        <figcaption>23:40 · one more bug</figcaption>
+      </figure>
+      <div class="spec" aria-label="Example brief">
+        <div class="spec-top">
+          <div class="spec-title"><svg width="20" height="20" aria-hidden="true"><use href="#orvel-mark"/></svg><b>A deep-work brief</b></div>
+          <span class="spec-tag">Example</span>
+        </div>
+        <div class="spec-row"><span class="spec-k">Work</span><span class="spec-v">Remote, late pushes</span></div>
+        <div class="spec-row"><span class="spec-k">Focus killers</span><span class="spec-v accent">Slack pings, lyrics, kids</span></div>
+        <div class="spec-row"><span class="spec-k">Keeps you up</span><span class="spec-v">Debugging in your head</span></div>
+        <div class="spec-row"><span class="spec-k">Playback</span><span class="spec-v accent">Over-ear headphones</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROBLEM ═══ -->
+<section class="band dark">
+  <div class="wrap">
+    <div class="prob-top nostat">
+      <div>
+        <p class="eyebrow rv">Deep work, interrupted</p>
+        <h2 class="rv rv-d1">Lyrics pull you out. <em class="hl">Silence lets everything in.</em></h2>
+        <p class="lede rv rv-d2">Playlists keep changing, vocals compete with the code on your screen, and silence lets every notification and voice in the house break the flow. Then after a late push you lie down with the bug still running in your head.</p>
+      </div>
+    </div>
+
+    <div class="prob-photos">
+      <figure class="ph rv">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1623479322729-28b25c16b011?auto=format&amp;fit=crop&amp;w=800&amp;q=70" width="800" height="600"
+             alt="A developer at a desk with two monitors of code in a dark room">
+        <figcaption>22:15 · in the zone</figcaption>
+      </figure>
+      <figure class="ph rv rv-d1">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1562813733-b31f71025d54?auto=format&amp;fit=crop&amp;w=800&amp;q=70" width="800" height="600"
+             alt="A person sitting at a desk in a dark room facing a glowing laptop">
+        <figcaption>01:30 · laptop still open</figcaption>
+      </figure>
+    </div>
+
+    <div class="prob-grid">
+      <div class="prob rv">
+        <span class="n">01 · Lyrics fight your code</span>
+        <h3>Words in your ears, words on the screen.</h3>
+        <p>A playlist built for everyone isn't built for the part of your head you need for code.</p>
+      </div>
+      <div class="prob rv rv-d1">
+        <span class="n">02 · Every sound is a context switch</span>
+        <h3>A door, a voice, a delivery.</h3>
+        <p>In a quiet room each one is a jump that breaks the flow. A steady floor makes it a smaller one.</p>
+      </div>
+      <div class="prob rv rv-d2">
+        <span class="n">03 · The bug follows you to bed</span>
+        <h3>You close the laptop. Your head keeps stepping through.</h3>
+        <p>Switching off after a late push is its own problem, and the same track won't solve both.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RESEARCH ═══ -->
+<section class="band dark" id="research">
+  <div class="wrap">
+    <p class="eyebrow rv">The research behind it</p>
+    <h2 class="rv rv-d1">It isn't the noise that wakes you. <em class="hl">It's the jump.</em></h2>
+
+    <div class="res-grid">
+      <div class="res rv">
+        <span class="mono">Sleep lab · ICU noise</span>
+        <h3>Same hospital noise. A steady sound underneath it. Far fewer wake-ups.</h3>
+        <p>Researchers played recorded intensive-care noise to sleeping volunteers. Brief awakenings rose from 13 an hour to 48.
+          With steady white noise added under the same ICU noise, they came back down to 16. What decided whether
+          someone woke wasn't how loud the peaks were. It was how far they jumped above the background.</p>
+        <div class="bars" aria-label="Arousals from sleep per hour">
+          <div class="bar"><span>Quiet room</span><span class="track"><span class="fill" data-w="27"></span></span><b>13.3</b></div>
+          <div class="bar hot"><span>ICU noise</span><span class="track"><span class="fill" data-w="100"></span></span><b>48.4</b></div>
+          <div class="bar good"><span>ICU noise + steady sound</span><span class="track"><span class="fill" data-w="32"></span></span><b>15.7</b></div>
+          <span class="bars-k">Arousals from sleep, per hour</span>
+        </div>
+        <span class="src">Stanchina et al., <i>Sleep Medicine</i>, 2005. Polysomnography, small sample.
+          <a href="https://pubmed.ncbi.nlm.nih.gov/16139772/" target="_blank" rel="noopener">Read the abstract</a></span>
+      </div>
+
+      <div style="display:grid;gap:1rem;align-content:start">
+        <div class="res rv rv-d1">
+          <span class="mono">Hospital shift workers</span>
+          <h3>Tested on people working through the night.</h3>
+          <p>26 emergency-medicine doctors working overnight shifts used noise-masking earbuds for two weeks. On the days they used them,
+            they reported better sleep quality and less sleepiness and tension than in the two weeks before. The changes were modest and self-reported, but consistent.</p>
+          <span class="src">Duggan et al., <i>JMIR Formative Research</i>, 2022.
+            <a href="https://pubmed.ncbi.nlm.nih.gov/35315781/" target="_blank" rel="noopener">Read the abstract</a></span>
+        </div>
+        <div class="honest rv rv-d2">
+          <svg width="16" height="16" aria-hidden="true"><use href="#ico-info"/></svg>
+          <span>These studies tested plain white noise and masking earbuds, not Orvel, and they're small. We show them because they explain
+            the principle every Orvel track is built on: a steady floor makes the same noise a smaller jump. Orvel is wellness audio, not a medical treatment.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPARE ═══ -->
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow eb-teal rv">Why not just a lo-fi playlist?</p>
+    <h2 class="rv rv-d1">A playlist is built for everyone. Your focus isn't.</h2>
+    <div class="cmp rv rv-d2" role="table" aria-label="A generic sleep video compared with Orvel">
+      <div class="cmp-row cmp-head" role="row">
+        <div role="columnheader">&nbsp;</div><div role="columnheader">Lo-fi playlist</div><div role="columnheader" class="o">Orvel, built for you</div>
+      </div>
+      <div class="cmp-row" role="row">
+        <div class="q" role="rowheader">What breaks your focus</div>
+        <div class="g" role="cell"><span class="gl">Loop</span>Doesn't know</div>
+        <div class="o" role="cell"><span class="ol">Orvel</span>Masking floor shaped to voices, pings and the house</div>
+      </div>
+      <div class="cmp-row" role="row">
+        <div class="q" role="rowheader">Lyrics and melody</div>
+        <div class="g" role="cell"><span class="gl">Loop</span>Vocals, hooks, track changes</div>
+        <div class="o" role="cell"><span class="ol">Orvel</span>No lyrics, nothing to follow, one steady texture</div>
+      </div>
+      <div class="cmp-row" role="row">
+        <div class="q" role="rowheader">How you listen</div>
+        <div class="g" role="cell"><span class="gl">Loop</span>One file for everyone</div>
+        <div class="o" role="cell"><span class="ol">Orvel</span>Mixed for earbuds, headphones or a speaker</div>
+      </div>
+      <div class="cmp-row" role="row">
+        <div class="q" role="rowheader">What you like hearing</div>
+        <div class="g" role="cell"><span class="gl">Loop</span>Rain, whether you like it or not</div>
+        <div class="o" role="cell"><span class="ol">Orvel</span>Your texture, your depth, no melody unless you want it</div>
+      </div>
+      <div class="cmp-row" role="row">
+        <div class="q" role="rowheader">Interruptions</div>
+        <div class="g" role="cell"><span class="gl">Loop</span>Ads, autoplay, phone screen</div>
+        <div class="o" role="cell"><span class="ol">Orvel</span>Your files, offline, nothing in between</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TIMELINE ═══ -->
+<section class="band paper2">
+  <div class="wrap">
+    <div class="tl-head">
+      <div>
+        <p class="eyebrow eb-teal rv">Your system, mapped to a build day</p>
+        <h2 class="rv rv-d1">Four tracks: <em class="hl">focus by day, sleep by night</em>.</h2>
+        <p class="lede rv rv-d2">Each track has one job at one point in your day. The times below are an example. Yours come from how you work.</p>
+      </div>
+      <figure class="ph rv rv-d1">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1738717164915-ceb5dedbd678?auto=format&amp;fit=crop&amp;w=1000&amp;q=70" width="1000" height="625" style="object-position:50% 40%"
+             alt="A man lying in bed wearing headphones">
+        <figcaption>Lights out · headphones on</figcaption>
+      </figure>
+    </div>
+
+    <div class="tl">
+      <div class="tl-item rv">
+        <span class="tl-dot"></span>
+        <span class="tl-time">09:00 · start</span>
+        <h3>Morning</h3>
+        <p>Starting the day. Brighter, so you're clear before stand-up.</p>
+        <span class="tl-plan">Full Day +</span>
+      </div>
+      <div class="tl-item rv rv-d1">
+        <span class="tl-dot"></span>
+        <span class="tl-time">10:00 · deep work</span>
+        <h3>Focus</h3>
+        <p>Steady, no lyrics, nothing to follow, built around what breaks your concentration.</p>
+        <span class="tl-plan">Full Day +</span>
+      </div>
+      <div class="tl-item c rv rv-d2">
+        <span class="tl-dot"></span>
+        <span class="tl-time">15:00 · the dip</span>
+        <h3>Afternoon Reset</h3>
+        <p>For the post-lunch slump.</p>
+        <span class="tl-plan">Complete</span>
+      </div>
+      <div class="tl-item rv rv-d3">
+        <span class="tl-dot"></span>
+        <span class="tl-time">00:30 · laptop shut</span>
+        <h3>Wind-down</h3>
+        <p>Takes you out of debugging mode. Slower and darker as it goes.</p>
+        <span class="tl-plan">Every plan</span>
+      </div>
+      <div class="tl-item rv rv-d3">
+        <span class="tl-dot"></span>
+        <span class="tl-time">01:00 · lights out</span>
+        <h3>Sleep</h3>
+        <p>A steady sound bed under the house and street noise.</p>
+        <span class="tl-plan">Every plan</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LISTEN ═══ -->
+<section class="band" id="listen">
+  <div class="wrap audio-grid">
+    <div>
+      <p class="eyebrow eb-teal rv">Press play</p>
+      <h2 class="rv rv-d1">Hear the sound world before you order.</h2>
+      <p class="lede rv rv-d2">Two finished Orvel soundscapes, unedited. Use headphones if you can, because the stereo field is part of the design.
+        They start quiet and build, so give them a few seconds. They aren't your track. Yours is built from your answers.</p>
+    </div>
+    <div class="player rv rv-d1" id="player">
+      <div class="pl-tabs" role="tablist" aria-label="Soundscapes">
+        <button class="pl-tab" role="tab" aria-selected="true" data-i="0">Subsurface</button>
+        <button class="pl-tab" role="tab" aria-selected="false" data-i="1">Deep Submersion</button>
+      </div>
+      <div class="pl-body">
+        <button class="pl-play" id="pl-play" type="button" aria-label="Play">
+          <svg id="pl-ico" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 2.5L15 9L4 15.5V2.5Z" fill="currentColor"/></svg>
+        </button>
+        <div class="pl-meta">
+          <div class="pl-name" id="pl-name">Subsurface</div>
+          <div class="pl-sub" id="pl-sub">Low · deep · slow-moving</div>
+        </div>
+      </div>
+      <div class="pl-wave" id="pl-wave" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      <div class="pl-time"><span id="pl-cur">0:00</span><span id="pl-dur">—:—</span></div>
+      <p class="pl-err" id="pl-err" role="alert">This sample couldn't load. Try the other one, or refresh the page.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHAT ARRIVES ═══ -->
+<section class="band paper2">
+  <div class="wrap">
+    <p class="eyebrow eb-teal rv">What you actually get</p>
+    <h2 class="rv rv-d1">Your files, and a note on <em class="hl">why</em> each one sounds the way it does.</h2>
+    <p class="lede rv rv-d2">Every track comes with Track Notes: what we heard in your brief and what we built in response. This is an example for a Focus track.</p>
+
+    <div class="arr-grid">
+      <div class="mail rv">
+        <div class="mail-bar"><i></i><i></i><i></i></div>
+        <div class="mail-h">
+          <div class="mail-from"><svg width="26" height="26" aria-hidden="true"><use href="#orvel-mark"/></svg><b>Orvel</b><span>· to you</span></div>
+          <div class="mail-subj">Your deep-work system is ready</div>
+        </div>
+        <div class="mail-body">
+          Your four tracks are attached, built from the brief you sent. Put Focus on repeat for a deep-work block, Wind-down when you shut the laptop, and Sleep on repeat at a low volume. If anything feels off, reply to this email and we'll rebuild it.
+          <div class="files">
+            <div class="file"><span class="ic">WAV</span><span>01 · Wind-down</span><em>MP3 + WAV</em></div>
+            <div class="file"><span class="ic">WAV</span><span>02 · Sleep</span><em>MP3 + WAV</em></div>
+            <div class="file"><span class="ic">WAV</span><span>03 · Morning</span><em>MP3 + WAV</em></div>
+            <div class="file"><span class="ic">WAV</span><span>04 · Focus</span><em>MP3 + WAV</em></div>
+            <div class="file"><span class="ic pdf">NOTES</span><span>Track Notes</span><em>4 tracks</em></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes rv rv-d1">
+        <div class="spec-top">
+          <div class="spec-title"><svg width="20" height="20" aria-hidden="true"><use href="#orvel-mark"/></svg><b>Track Notes · Focus</b></div>
+          <span class="spec-tag">Example</span>
+        </div>
+        <h3>“Voices from the next room were the ones to beat.”</h3>
+        <div class="spec-row"><span class="spec-k">Built for</span><span class="spec-v">Remote · deep-work blocks + late pushes</span></div>
+        <div class="spec-row"><span class="spec-k">What breaks focus</span><span class="spec-v">Slack pings, kids home at 3, voices</span></div>
+        <div class="spec-row"><span class="spec-k">Masking floor</span><span class="spec-v accent">Mid-weighted, to sit under voices</span></div>
+        <div class="spec-row"><span class="spec-k">Character</span><span class="spec-v">Steady texture, no melody, no pulse</span></div>
+        <div class="spec-row"><span class="spec-k">Shape</span><span class="spec-v">Loops seamlessly for a whole block</span></div>
+        <div class="spec-row"><span class="spec-k">Binaural layer</span><span class="spec-v">On · headphones only</span></div>
+        <div class="spec-row"><span class="spec-k">How to play</span><span class="spec-v accent">On repeat, low, the whole block</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow eb-teal rv">How it works</p>
+    <h2 class="rv rv-d1">Order today. Your files arrive before your next sprint.</h2>
+    <div class="steps">
+      <div class="step rv">
+        <span class="n">1</span>
+        <h3>Pick your plan</h3>
+        <p>One payment. No app, no account and no subscription unless you choose one.</p>
+        <span class="mono t">2 minutes</span>
+      </div>
+      <div class="step rv rv-d1">
+        <span class="n">2</span>
+        <h3>Answer the brief</h3>
+        <p>How you work, what breaks your focus, when you sleep, what wakes you and what you like hearing. It's built for a tired brain, so it's mostly tap-to-answer.</p>
+        <span class="mono t">5–7 minutes</span>
+      </div>
+      <div class="step rv rv-d2">
+        <span class="n">3</span>
+        <h3>Get your files</h3>
+        <p>MP3 + WAV by email, with Track Notes explaining what was built and why. They go on your phone and play offline.</p>
+        <span class="mono t">Within 24–48 hours</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ REVIEWS (hidden until real ones are added) ═══ -->
+<section class="band paper2" id="reviews" hidden>
+  <div class="wrap">
+    <p class="eyebrow eb-teal">From developers who've used it</p>
+    <h2>In their words.</h2>
+    <div class="rev-grid" id="rev-grid"></div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="band dark" id="pricing">
+  <div class="wrap">
+    <div class="pricing-head">
+      <p class="eyebrow rv">Pricing</p>
+      <h2 class="rv rv-d1">Pay once. Keep the files.</h2>
+      <p class="lede rv rv-d2">Every plan is made after you order, from your own brief. Full Day adds Morning and Focus, so it covers deep work as well as sleep.</p>
+    </div>
+    <div class="plans">
+      <div class="plan rv">
+        <span class="plan-n">Plan 01</span>
+        <h3>Sleep</h3>
+        <span class="plan-tracks">2 custom tracks</span>
+        <div class="plan-price"><sup>$</sup>69</div>
+        <span class="plan-once">One-time</span>
+        <p class="plan-for">“I just need to switch off after late pushes.”</p>
+        <ul>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>Wind-down · Sleep</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>Built from your full brief</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>MP3 + WAV, Track Notes</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>One free revision each</span></li>
+        </ul>
+        <a class="btn btn-ghost" data-buy="sleep" href="/?buy=sleep&amp;ref=developers">Choose Sleep</a>
+      </div>
+      <div class="plan feat rv rv-d1">
+        <span class="plan-flag">Recommended for deep work</span>
+        <span class="plan-n">Plan 02</span>
+        <h3>Full Day</h3>
+        <span class="plan-tracks">4 custom tracks</span>
+        <div class="plan-price"><sup>$</sup>99</div>
+        <span class="plan-once">One-time</span>
+        <p class="plan-for">“I need focus by day and sleep by night.”</p>
+        <ul>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>Wind-down · Sleep · Morning · Focus</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>Four tracks built as one system</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>MP3 + WAV, Track Notes</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>One free revision each</span></li>
+        </ul>
+        <a class="btn btn-peri" data-buy="full" href="/?buy=full&amp;ref=developers">Choose Full Day</a>
+      </div>
+      <div class="plan rv rv-d2">
+        <span class="plan-n">Plan 03</span>
+        <h3>Complete</h3>
+        <span class="plan-tracks">5 custom tracks</span>
+        <div class="plan-price"><sup>$</sup>149</div>
+        <span class="plan-once">One-time</span>
+        <p class="plan-for">“The 3&nbsp;p.m. slump kills my afternoon.”</p>
+        <ul>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>Everything in Full Day</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>Plus the Afternoon Reset</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>MP3 + WAV, Track Notes</span></li>
+          <li><svg width="13" height="13" aria-hidden="true"><use href="#ico-check"/></svg><span>One free revision each</span></li>
+        </ul>
+        <a class="btn btn-ghost" data-buy="complete" href="/?buy=complete&amp;ref=developers">Choose Complete</a>
+      </div>
+    </div>
+    <p class="pricing-foot rv">One-time payment<i>·</i>No subscription<i>·</i>Yours to keep</p>
+    <div class="guarantee rv">
+      <svg width="22" height="22" aria-hidden="true"><use href="#ico-shield"/></svg>
+      <div>
+        <b>Built for you, or you don't pay for it.</b>
+        <p>Tell us what's off within 14 days of delivery and we'll rebuild the track once, free. If the rebuild still isn't right,
+          we refund you in full, and you keep the files.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="band">
+  <div class="wrap faq-grid">
+    <div>
+      <p class="eyebrow eb-teal rv">Questions</p>
+      <h2 class="rv rv-d1">What developers ask before ordering.</h2>
+      <p class="lede rv rv-d2" style="font-size:.92rem">Anything else? Email
+        <a href="mailto:orvelsound@gmail.com" style="color:var(--teal)">orvelsound@gmail.com</a> and a person will reply.</p>
+    </div>
+    <div id="faq">
+      <div class="faq-item open">
+        <button class="faq-q" type="button" aria-expanded="true">Will it replace my focus playlist?<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>That's the idea. Focus is one steady texture with no lyrics, no hooks and no track changes, shaped around what breaks your concentration. It loops seamlessly, so you can leave it on for a whole block.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">Can I use it on calls?<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>Turn it off for calls and pairing. It's built for heads-down work, not for talking over.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">How is this different from a white-noise app?<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>A white-noise app gives everyone the same hiss. Orvel shapes the masking floor around the noises in <em>your</em> brief, so it sits under a bin lorry differently from how it sits under a partner's alarm or birds at dawn. It's also built from sounds you actually like hearing, mixed for how you listen, and tuned to when you sleep. And you own the files.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">I'm a side sleeper. Or I can't wear anything in bed.<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>Tell us in the brief. For sleep earbuds or headband headphones, we build in stereo and can add a binaural layer, which needs each ear to get its own signal. For a speaker or white-noise machine, we leave the binaural layer out and put the work into the masking bed and the low end. You get a track designed for how you'll actually play it.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">What happens after I pay?<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>The brief opens straight away. It's around twenty questions and takes 5–7 minutes. You can also finish it later from the link in your confirmation email. Once it's in, your tracks are built and your MP3 + WAV files and Track Notes arrive by email within 24–48 hours.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">What if I don't like it?<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>Tell us what's off within 14 days of delivery and we'll rebuild it once, free. If it still isn't right, we refund you in full. You also get a full refund if you ask before production starts. Details are in our <a href="/refund">refund policy</a>.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">Is this a subscription?<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>No. Your tracks are a one-time payment and they're yours to keep. At checkout there's an optional add-on, Orvel Refresh, which sends a fresh variant of your tracks every month. It's unticked by default, free for 30 days, then $15/month, and you can cancel any time. Skip it and nothing recurs.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">Is this a medical treatment?<span class="faq-ico" aria-hidden="true">+</span></button>
+        <div class="faq-a"><div><p>No. Orvel is a wellness audio product. It isn't intended to diagnose, treat, cure or prevent any condition, and it isn't a substitute for medical advice. If you think you might have a sleep disorder, talk to a doctor.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FINAL CTA ═══ -->
+<section class="band paper2" id="final">
+  <div class="wrap">
+    <p class="eyebrow eb-gold rv">For the people shipping at midnight</p>
+    <h2 class="rv rv-d1">Your focus, <em class="hl">built to order.</em></h2>
+    <p class="lede rv rv-d2">Built from your answers. Mixed for your room. In your inbox within 48 hours.</p>
+    <p class="assure rv">
+      <svg width="15" height="15" aria-hidden="true"><use href="#ico-shield"/></svg>
+      <span><b>One free rebuild, then a full refund if it still misses.</b></span>
+    </p>
+    <a class="btn btn-primary btn-lg rv" data-buy="full" href="/?buy=full&amp;ref=developers">Build my deep-work system <span class="price">$99</span></a>
+    <p class="trust rv">Or start with sleep only<i>·</i><a data-buy="sleep" href="/?buy=sleep&amp;ref=developers">$69</a></p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div>
+        <div class="f-brand"><svg width="30" height="30" aria-hidden="true"><use href="#orvel-mark"/></svg><b>Orvel</b></div>
+        <p class="f-tag">Custom wellness audio, built around the hours your life actually runs. Made after you order, by a person.</p>
+      </div>
+      <nav class="f-links" aria-label="Footer">
+        <a href="/">Orvel home</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/refund">Refunds</a>
+        <a href="/contact">Contact</a>
+        <a href="mailto:orvelsound@gmail.com">orvelsound@gmail.com</a>
+      </nav>
+    </div>
+    <div class="f-bot">
+      <span>© <span id="yr">2026</span> Orvel</span>
+      <p>Orvel is a wellness audio product and is not intended to diagnose, treat, cure or prevent any medical condition. Individual experiences vary.</p>
+      <p>Photos are illustrative and show models, not Orvel customers. Photography on Unsplash by <a href="https://unsplash.com/photos/Bv2FCJoh8XM" target="_blank" rel="noopener">Nubelson Fernandes</a>, <a href="https://unsplash.com/photos/_Fx34KeqIEw" target="_blank" rel="noopener">Mohammad Rahmani</a>, <a href="https://unsplash.com/photos/dYEuFB8KQJk" target="_blank" rel="noopener">Clint Patterson</a> and <a href="https://unsplash.com/photos/izbOpO3LQXo" target="_blank" rel="noopener">Gaurav Yadav</a>.</p>
+    </div>
+  </div>
+</footer>
+
+<div id="sticky" role="region" aria-label="Order">
+  <div class="s-txt">Full Day system · $99<span>4 custom tracks · one-time</span></div>
+  <a class="btn btn-primary" data-buy="full" href="/?buy=full&amp;ref=developers">Build mine</a>
+</div>
+
+<script>
+'use strict';
+document.documentElement.classList.add('js');
+(function(){
+  var LP = window.ORVEL_LP;
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function px(type, name, data){ try { if (window.fbq) fbq(type, name, data); } catch(_){} }
+
+  /* ── CTA links: carry plan + niche + ad attribution into checkout ── */
+  var keep = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'];
+  var here = new URLSearchParams(location.search);
+  $$('[data-buy]').forEach(function(a){
+    var u = new URL(LP.CHECKOUT_URL, location.href);
+    u.searchParams.set('buy', a.getAttribute('data-buy'));
+    u.searchParams.set('ref', LP.NICHE);
+    keep.forEach(function(k){ if (here.get(k)) u.searchParams.set(k, here.get(k)); });
+    a.href = u.pathname + u.search;
+    a.addEventListener('click', function(){ px('trackCustom', 'LP_BuildClick', { niche: LP.NICHE, plan: a.getAttribute('data-buy') }); });
+  });
+
+  /* ── photos: hide the frame cleanly if an image ever fails ── */
+  $$('.ph img').forEach(function(img){ img.addEventListener('error', function(){ img.closest('.ph').classList.add('broken'); }); });
+
+  /* ── nav + sticky bar ── */
+  var nav = $('#nav'), sticky = $('#sticky'), hero = $('#hero'), pricing = $('#pricing'), finalCta = $('#final');
+  function onScroll(){
+    var y = window.scrollY;
+    nav.classList.toggle('solid', y > 12);
+    var pastHero = y > hero.offsetHeight - 120;
+    var r1 = pricing.getBoundingClientRect(), r2 = finalCta.getBoundingClientRect(), vh = innerHeight;
+    var overPlans = (r1.top < vh && r1.bottom > 0) || (r2.top < vh && r2.bottom > 0);
+    sticky.classList.toggle('up', pastHero && !overPlans);
+  }
+  addEventListener('scroll', onScroll, { passive:true }); onScroll();
+
+  /* ── reveals (+ research bars) ── */
+  function reveal(el){
+    el.classList.add('in');
+    $$('.fill', el).forEach(function(f){ f.style.width = f.getAttribute('data-w') + '%'; });
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting){ reveal(e.target); io.unobserve(e.target); } });
+    }, { rootMargin:'0px 0px -8% 0px', threshold:.08 });
+    $$('.rv').forEach(function(el){ io.observe(el); });
+  } else { $$('.rv').forEach(reveal); }
+
+  /* ── FAQ ── */
+  $$('#faq .faq-q').forEach(function(q){
+    q.addEventListener('click', function(){
+      var item = q.parentNode, open = !item.classList.contains('open');
+      item.classList.toggle('open', open); q.setAttribute('aria-expanded', open);
+    });
+  });
+
+  /* ── reviews (real ones only) ── */
+  if (LP.REVIEWS && LP.REVIEWS.length){
+    var esc = function(t){ var d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
+    $('#rev-grid').innerHTML = LP.REVIEWS.map(function(r){
+      return '<div class="rev"><div class="stars" aria-label="5 out of 5">★★★★★</div><blockquote>“' + esc(r.quote) +
+             '”</blockquote><p class="by">' + esc(r.by) + '</p></div>';
+    }).join('');
+    $('#reviews').hidden = false;
+  }
+
+  /* ── deterministic waveform bars ── */
+  function bars(el, n, seed, minH){
+    var s = seed, html = '';
+    for (var i = 0; i < n; i++){
+      s = (s * 9301 + 49297) % 233280;
+      var env = Math.sin(Math.PI * (i + .5) / n);
+      var h = Math.max(minH, Math.round((0.25 + 0.75 * env) * (0.45 + 0.55 * s / 233280) * 100));
+      html += '<i style="height:' + h + '%"></i>';
+    }
+    el.innerHTML = html;
+  }
+
+  /* ── sample player ── */
+  var TRACKS = [
+    { name:'Subsurface',      sub:'Low · deep · slow-moving',     file:'audio/Subsurface.m4a',      seed:11 },
+    { name:'Deep Submersion', sub:'Darker · denser · enveloping', file:'audio/Deep_Submersion.m4a', seed:23 },
+  ];
+  var audio = new Audio(); audio.preload = 'none';
+  var cur = 0, wave = $('#pl-wave'), N = 72;
+  var ICON_PLAY = '<path d="M4 2.5L15 9L4 15.5V2.5Z" fill="currentColor"/>';
+  var ICON_PAUSE = '<rect x="4" y="3" width="3.6" height="12" rx="1" fill="currentColor"/><rect x="10.4" y="3" width="3.6" height="12" rx="1" fill="currentColor"/>';
+  function fmt(t){ if (!isFinite(t)) return '—:—'; t = Math.floor(t); return Math.floor(t/60) + ':' + ('0' + t % 60).slice(-2); }
+  function load(i, autoplay){
+    cur = i; var t = TRACKS[i];
+    $$('.pl-tab').forEach(function(b, j){ b.setAttribute('aria-selected', j === i); });
+    $('#pl-name').textContent = t.name; $('#pl-sub').textContent = t.sub;
+    $('#pl-err').style.display = 'none';
+    bars(wave, N, t.seed, 8);
+    audio.src = t.file; $('#pl-cur').textContent = '0:00'; $('#pl-dur').textContent = '—:—';
+    paint(0);
+    if (autoplay) play();
+  }
+  function paint(p){
+    var on = Math.round(p * N);
+    $$('i', wave).forEach(function(b, j){ b.classList.toggle('on', j < on); });
+    wave.setAttribute('aria-valuenow', Math.round(p * 100));
+  }
+  function play(){
+    var pr = audio.play();
+    if (pr && pr.catch) pr.catch(function(){ $('#pl-err').style.display = 'block'; });
+    px('trackCustom', 'LP_SamplePlay', { niche: LP.NICHE, track: TRACKS[cur].name });
+  }
+  $('#pl-play').addEventListener('click', function(){ audio.paused ? play() : audio.pause(); });
+  audio.addEventListener('play', function(){ $('#pl-ico').innerHTML = ICON_PAUSE; $('#pl-play').setAttribute('aria-label','Pause'); });
+  audio.addEventListener('pause', function(){ $('#pl-ico').innerHTML = ICON_PLAY; $('#pl-play').setAttribute('aria-label','Play'); });
+  audio.addEventListener('loadedmetadata', function(){ $('#pl-dur').textContent = fmt(audio.duration); });
+  audio.addEventListener('timeupdate', function(){
+    $('#pl-cur').textContent = fmt(audio.currentTime);
+    if (audio.duration) paint(audio.currentTime / audio.duration);
+  });
+  audio.addEventListener('error', function(){ if (audio.getAttribute('src')) $('#pl-err').style.display = 'block'; });
+  $$('.pl-tab').forEach(function(b){
+    b.addEventListener('click', function(){ var playing = !audio.paused; audio.pause(); load(+b.dataset.i, playing); });
+  });
+  function seekTo(clientX){
+    var r = wave.getBoundingClientRect(), p = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    if (audio.duration){ audio.currentTime = p * audio.duration; paint(p); }
+    else { audio.addEventListener('loadedmetadata', function once(){ audio.currentTime = p * audio.duration; audio.removeEventListener('loadedmetadata', once); }); play(); }
+  }
+  wave.addEventListener('pointerdown', function(e){ seekTo(e.clientX); });
+  wave.addEventListener('keydown', function(e){
+    if (!audio.duration) return;
+    if (e.key === 'ArrowRight') audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+    if (e.key === 'ArrowLeft')  audio.currentTime = Math.max(0, audio.currentTime - 10);
+  });
+
+  load(0, false);
+  $('#yr').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+process.env.META_CAPI_TOKEN='TESTTOKEN'; process.env.INTAKE_TOKEN_SECRET='x'; process.env.POLAR_ACCESS_TOKEN='p'; process.env.POLAR_PRODUCT_FULL='prod_full';
+const calls=[];
+globalThis.fetch=async (url,init)=>{ calls.push({url:String(url),init});
+  if(String(url).includes('api.polar.sh')) return {ok:true,status:200,json:async()=>({id:'chk_A',status:'succeeded',product_id:'prod_full',total_amount:10890,net_amount:9900,currency:'usd',customer_email:'Buyer@Example.com',customer_name:'Jane Doe',order_id:'ord_1'})};
+  if(String(url).includes('graph.facebook.com')) return {ok:true,status:200,json:async()=>({events_received:1})};
+  return {ok:true,status:200,json:async()=>({})};};
+const {default:h}=await import(process.cwd()+'/api/verify-polar.js');
+let out; const res={setHeader(){},status(c){this.c=c;return this},json(d){out={c:this.c,d};return this}};
+await h({method:'POST',headers:{'x-forwarded-for':'1.2.3.4, 5.6.7.8','user-agent':'UA/1'},body:{checkoutId:'chk_A',ref:'nurses',fbp:'fb.1.1700000000000.123456',fbc:'fb.1.1700000000000.TESTCLID',sourceUrl:'https://www.orvelsound.com/'}},res);
+const m=calls.find(c=>c.url.includes('graph.facebook.com'));
+console.log('status',out.c,out.d.verified);
+console.log('url',m.url.replace(/access_token=.*/,'access_token=***'));
+console.log(JSON.stringify(JSON.parse(m.init.body)));

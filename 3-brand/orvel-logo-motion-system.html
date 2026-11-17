@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orvel — Logo Motion System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#090D18;
+    --ink-2:#0C1120;
+    --panel:#141A2E;
+    --panel-line:#232A44;
+    --indigo:#5B60EA;
+    --indigo-bright:#8A8FF6;
+    --lavender:#AEB2F5;
+    --lavender-hi:#C7CAFF;
+    --cloud:#F4F1EA;
+    --indigo-deep:#4A45E6;
+    --muted:#6B7291;
+    --ease-out:cubic-bezier(.16,1,.3,1);
+    --breath:7000ms;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 700px at 70% -10%, rgba(91,96,234,.10), transparent 60%),
+      var(--ink);
+    color:#E7E9F5;
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding:56px 24px 96px;
+  }
+  .wrap{max-width:1040px;margin:0 auto}
+
+  .eyebrow{
+    font-size:12px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--indigo-bright);font-weight:500;margin:0 0 14px;
+  }
+  h1{
+    font-weight:300;font-size:clamp(28px,4vw,44px);letter-spacing:-.01em;
+    margin:0 0 10px;line-height:1.05;
+  }
+  h1 b{font-weight:600}
+  .sub{color:var(--muted);max-width:52ch;line-height:1.6;font-weight:300;margin:0 0 40px;font-size:15px}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;border-radius:24px;overflow:hidden;
+    background:
+      radial-gradient(700px 420px at 50% 30%, rgba(91,96,234,.14), transparent 65%),
+      linear-gradient(180deg,#0C1222,#080C16);
+    border:1px solid var(--panel-line);
+    padding:64px 24px 40px;
+    display:flex;flex-direction:column;align-items:center;gap:26px;
+  }
+  .stage{width:260px;height:260px;position:relative}
+
+  .wordmark{
+    font-weight:300;letter-spacing:.52em;font-size:15px;
+    color:var(--lavender-hi);text-indent:.52em;
+    opacity:0;transform:translateY(6px);
+  }
+  .playing .wordmark{animation:word 900ms var(--ease-out) 1500ms forwards}
+  @keyframes word{to{opacity:.95;transform:none}}
+
+  .tagline{color:var(--muted);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;opacity:0}
+  .playing .tagline{animation:word 900ms var(--ease-out) 1750ms forwards}
+
+  /* ---------- SVG LOGO ENGINE ---------- */
+  .logo{width:100%;height:100%;overflow:visible;display:block}
+  .logo .draw{fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* breathing group */
+  .breathe{transform-box:fill-box;transform-origin:center;will-change:transform,filter}
+  .playing .breathe{
+    filter:drop-shadow(0 0 0 rgba(91,96,234,0));
+    animation:breath var(--breath) ease-in-out 2000ms infinite;
+  }
+  @keyframes breath{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 0 10px rgba(91,96,234,.18))}
+    50%    {transform:scale(1.035);filter:drop-shadow(0 0 26px rgba(120,124,246,.42))}
+  }
+
+  /* draw-on: dasharray/offset set by JS via --len */
+  .ring{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+  .s-main{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+  .s-echo{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);opacity:0}
+
+  .playing .ring{animation:draw 1100ms var(--ease-out) 300ms forwards}
+  .playing .s-main{animation:draw 1300ms var(--ease-out) 800ms forwards}
+  .playing .s-echo{animation:draw 1300ms var(--ease-out) 950ms forwards, echo 5200ms ease-in-out 2200ms infinite}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes echo{0%,100%{opacity:.16}50%{opacity:.42}} /* the "waveform" shimmer */
+
+  /* sonar ripples */
+  .ripple{transform-box:fill-box;transform-origin:center;opacity:0}
+  .playing .r1{animation:ping 2600ms var(--ease-out) 1600ms 1}
+  .playing .r2{animation:ping 2600ms var(--ease-out) 1900ms 1, pingLoop 6000ms var(--ease-out) 4600ms infinite}
+  @keyframes ping{
+    0%{opacity:.5;transform:scale(.62)}
+    100%{opacity:0;transform:scale(1.7)}
+  }
+  @keyframes pingLoop{
+    0%{opacity:.35;transform:scale(.62)}
+    55%,100%{opacity:0;transform:scale(1.7)}
+  }
+
+  /* ---------- CONTEXT GRID ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:20px}
+  .card{
+    background:var(--panel);border:1px solid var(--panel-line);border-radius:18px;
+    padding:26px 20px 18px;display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  .card .mini{width:112px;height:112px;position:relative}
+  .card.light{background:var(--cloud);border-color:#E4E0D4}
+  .card .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .card.light .label{color:#8A8578}
+  .card .note{font-size:12px;color:var(--muted);text-align:center;line-height:1.5;font-weight:300}
+  .card.light .note{color:#7C776A}
+
+  .fav-row{display:flex;align-items:center;gap:20px}
+  .fav{position:relative}
+  .fav.big{width:48px;height:48px}
+  .fav.mid{width:24px;height:24px}
+  .fav.sm{width:16px;height:16px}
+
+  /* questionnaire mock */
+  .quiz{background:var(--panel);border:1px solid var(--panel-line);border-radius:18px;padding:22px}
+  .quiz-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .quiz-head .qmark{width:34px;height:34px;position:relative}
+  .quiz-head .qt{font-size:14px;font-weight:500;letter-spacing:.01em}
+  .quiz-head .qs{font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+  .opt{border:1px solid var(--panel-line);border-radius:12px;padding:13px 16px;font-size:14px;color:#C9CDE6;margin-bottom:8px;cursor:default;transition:border-color .2s,background .2s}
+  .opt:hover{border-color:var(--indigo);background:rgba(91,96,234,.06)}
+
+  /* ---------- CONTROLS ---------- */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:34px}
+  button{
+    font-family:inherit;font-size:13px;letter-spacing:.02em;
+    background:rgba(91,96,234,.12);color:#D6D8F6;border:1px solid var(--indigo);
+    padding:11px 20px;border-radius:999px;cursor:pointer;transition:background .2s,transform .1s;
+  }
+  button:hover{background:rgba(91,96,234,.22)}
+  button:active{transform:translateY(1px)}
+  button.ghost{background:transparent;border-color:var(--panel-line);color:var(--muted)}
+  button:focus-visible{outline:2px solid var(--indigo-bright);outline-offset:2px}
+
+  .section-title{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:56px 0 16px}
+  .foot{color:var(--muted);font-size:12px;line-height:1.7;font-weight:300;margin-top:40px;max-width:60ch}
+
+  @media (prefers-reduced-motion: reduce){
+    .playing .ring,.playing .s-main,.playing .s-echo,.playing .breathe,
+    .playing .r1,.playing .r2,.playing .wordmark,.playing .tagline{animation:none!important}
+    .ring,.s-main{stroke-dashoffset:0!important}
+    .s-echo{stroke-dashoffset:0!important;opacity:.28}
+    .wordmark,.tagline{opacity:.95;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Orvel · logo motion</p>
+  <h1>A logo that <b>breathes</b>.</h1>
+  <p class="sub">The mark draws itself on load — ring first, then the S flowing top‑to‑bottom — settles into a slow sleep‑breath, and sends one soft sonar ripple outward. Static everywhere it needs to be; alive where it counts.</p>
+
+  <!-- HERO -->
+  <div class="hero" id="hero">
+    <div class="stage">
+      <svg class="logo" viewBox="0 0 200 200" data-logo aria-label="Orvel logo">
+        <g class="breathe">
+          <!-- ripples -->
+          <circle class="draw ripple r1" cx="100" cy="100" r="68" stroke="#8A8FF6" stroke-width="1.5"/>
+          <circle class="draw ripple r2" cx="100" cy="100" r="68" stroke="#5B60EA" stroke-width="1.5"/>
+          <!-- ring -->
+          <circle class="draw ring" cx="100" cy="100" r="68" stroke="#AEB2F5" stroke-width="4.5"/>
+          <!-- S echo (the waveform shimmer) -->
+          <path class="draw s-echo" d="M126 62 C98 66 92 96 100 104 C108 112 104 140 74 140" stroke="#8A8FF6" stroke-width="3"/>
+          <!-- S main -->
+          <path class="draw s-main" d="M124 60 C96 64 90 94 100 102 C110 110 102 138 72 138" stroke="#C7CAFF" stroke-width="5.5"/>
+        </g>
+      </svg>
+    </div>
+    <div class="wordmark">ORVEL</div>
+    <div class="tagline">sleep, tuned to your schedule</div>
+  </div>
+
+  <div class="controls">
+    <button id="replay">↻ Replay intro</button>
+    <button id="chime" class="ghost">♪ Play with sound</button>
+  </div>
+
+  <!-- CONTEXTS -->
+  <p class="section-title">Same engine, every surface</p>
+  <div class="grid">
+    <div class="card">
+      <div class="mini"><svg class="logo" viewBox="0 0 200 200" data-logo></svg></div>
+      <div class="label">On night</div>
+      <div class="note">Website open + splash.</div>
+    </div>
+
+    <div class="card light">
+      <div class="mini"><svg class="logo logo-light" viewBox="0 0 200 200" data-logo></svg></div>
+      <div class="label">On light</div>
+      <div class="note">Questionnaire, checkout, email.</div>
+    </div>
+
+    <div class="card">
+      <div class="fav-row">
+        <div class="fav big"><svg class="logo" viewBox="0 0 200 200" data-static></svg></div>
+        <div class="fav mid"><svg class="logo" viewBox="0 0 200 200" data-static></svg></div>
+        <div class="fav sm"><svg class="logo" viewBox="0 0 200 200" data-static></svg></div>
+      </div>
+      <div class="label">Favicon · static</div>
+      <div class="note">48 / 24 / 16 px. No motion — reads clean when tiny.</div>
+    </div>
+  </div>
+
+  <!-- QUESTIONNAIRE MOCK -->
+  <p class="section-title">In the questionnaire</p>
+  <div class="quiz">
+    <div class="quiz-head">
+      <div class="qmark"><svg class="logo" viewBox="0 0 200 200" data-logo data-loop></svg></div>
+      <div>
+        <div class="qs">Step 1 of 4</div>
+        <div class="qt">When do you usually try to sleep?</div>
+      </div>
+    </div>
+    <div class="opt">After a night shift — mid‑morning</div>
+    <div class="opt">Rotating — it changes week to week</div>
+    <div class="opt">Early evening before an early start</div>
+    <div class="opt">Standard night, I just can't switch off</div>
+    <div style="margin-top:14px"><button id="replay2">↻ Replay marks</button></div>
+  </div>
+
+  <p class="foot">
+    The animation is path‑agnostic — it measures whatever SVG you give it and draws it, so swap the two <code>&lt;path&gt;</code> d‑values for your exact production SVG and everything else (draw‑on, breath, ripple, glow) keeps working. Respects <code>prefers‑reduced‑motion</code>: motion‑sensitive visitors get the finished mark with no animation. Sound is gated behind a click — never autoplays.
+  </p>
+</div>
+
+<script>
+(function(){
+  // measure every path/circle marked .draw and set its --len so dash animations run correctly
+  function prime(svg){
+    svg.querySelectorAll('.draw').forEach(function(el){
+      try{
+        var len = el.getTotalLength();
+        el.style.setProperty('--len', len);
+      }catch(e){}
+    });
+  }
+  // Some SVGs are rendered as empty shells (data-logo without inline content) — clone the hero template into them.
+  var template = document.querySelector('.hero .logo').innerHTML;
+  document.querySelectorAll('[data-logo]').forEach(function(svg){
+    if(!svg.innerHTML.trim()) svg.innerHTML = template;
+    // light variant recolor
+    if(svg.classList.contains('logo-light')){
+      svg.querySelector('.ring').setAttribute('stroke','#4A45E6');
+      svg.querySelector('.s-main').setAttribute('stroke','#4A45E6');
+      svg.querySelector('.s-echo').setAttribute('stroke','#7E7BF2');
+      svg.querySelector('.r1').setAttribute('stroke','#6B67EF');
+      svg.querySelector('.r2').setAttribute('stroke','#4A45E6');
+    }
+    prime(svg);
+  });
+
+  // static favicons: just show finished mark, no dash offset
+  var favTemplate = document.querySelector('.hero .logo').innerHTML;
+  document.querySelectorAll('[data-static]').forEach(function(svg){
+    svg.innerHTML = favTemplate;
+    svg.querySelectorAll('.draw').forEach(function(el){ el.style.strokeDashoffset='0'; });
+    svg.querySelectorAll('.ripple').forEach(function(el){ el.remove(); });
+  });
+
+  function play(scope){
+    scope.querySelectorAll('[data-logo]').forEach(function(svg){
+      var stage = svg.closest('.stage, .mini, .qmark') || svg;
+      stage.classList.remove('playing');
+      // force reflow to restart CSS animations
+      void stage.offsetWidth;
+      stage.classList.add('playing');
+    });
+  }
+
+  // autoplay on load
+  window.addEventListener('load', function(){ play(document); });
+
+  document.getElementById('replay').addEventListener('click', function(){ play(document.getElementById('hero').parentElement); });
+  document.getElementById('replay2').addEventListener('click', function(){ play(document.querySelector('.quiz')); });
+
+  // gated soft chime — a single mellow major-third swell (the "sound touch"), never autoplays
+  document.getElementById('chime').addEventListener('click', function(){
+    try{
+      var ctx = new (window.AudioContext||window.webkitAudioContext)();
+      var now = ctx.currentTime;
+      [220, 277.18, 329.63].forEach(function(f,i){          // A3 · C#4 · E4, soft major chord
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.type='sine'; o.frequency.value=f;
+        o.connect(g); g.connect(ctx.destination);
+        var t = now + i*0.12;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.14, t+0.4);
+        g.gain.exponentialRampToValueAtTime(0.0001, t+2.6);
+        o.start(t); o.stop(t+2.7);
+      });
+    }catch(e){}
+    play(document.getElementById('hero').parentElement);
+  });
+})();
+</script>
+</body>
+</html>
